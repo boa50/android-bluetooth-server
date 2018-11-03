@@ -8,7 +8,5 @@ public interface Constants {
     int STATE_LISTEN = 1;
     int STATE_CONNECTED = 2;
 
-    int REQUEST_ENABLE_BT = 0;
-
     String TOAST = "toast";
 }
