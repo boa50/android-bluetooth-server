@@ -1,12 +1,14 @@
 package br.com.boa50.androidbluetoothserver;
 
 public interface Constants {
-//    int MESSAGE_STATE_CHANGE = 1;
-    int MESSAGE_READ = 2;
-//    int MESSAGE_WRITE = 3;
-    int MESSAGE_DEVICE_NAME = 4;
-    int MESSAGE_TOAST = 5;
+    int MESSAGE_READ = 0;
+    int MESSAGE_TOAST = 1;
 
-    String DEVICE_NAME = "device_name";
+    int STATE_NONE = 0;
+    int STATE_LISTEN = 1;
+    int STATE_CONNECTED = 2;
+
+    int REQUEST_ENABLE_BT = 0;
+
     String TOAST = "toast";
 }
