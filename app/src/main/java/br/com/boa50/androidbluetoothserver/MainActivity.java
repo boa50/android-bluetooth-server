@@ -16,6 +16,7 @@ public class MainActivity extends AppCompatActivity {
 
     private BluetoothAdapter mBluetoothAdapter = null;
     private BluetoothService mBluetoothService = null;
+    private StringBuffer mOutStringBuffer;
     private Handler mHandler;
 
     @Override
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (mHandler == null) {
-            mHandler = new ServiceHandler(getApplicationContext());
+            mHandler = new ServiceHandler(getApplicationContext(), this);
         }
     }
 
@@ -59,6 +60,21 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupService() {
         mBluetoothService = new BluetoothService(mHandler);
+        mOutStringBuffer = new StringBuffer();
+    }
+
+    public void sendMessage(String message) {
+        if (mBluetoothService.getState() != Constants.STATE_CONNECTED) {
+            Toast.makeText(getApplicationContext(), "Não está conectado",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (message.length() > 0) {
+            byte[] send = message.getBytes();
+            mBluetoothService.write(send);
+            mOutStringBuffer.setLength(0);
+        }
     }
 
     @Override

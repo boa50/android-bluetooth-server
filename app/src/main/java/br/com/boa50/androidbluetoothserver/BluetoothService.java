@@ -11,6 +11,7 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.UUID;
 
 import static br.com.boa50.androidbluetoothserver.Constants.STATE_CONNECTED;
@@ -46,6 +47,19 @@ public class BluetoothService {
         mConnectedThread = new ConnectedThread(socket);
         mConnectedThread.start();
         sendToastMessage("Connected to: " + device.getName());
+    }
+
+    void write(byte[] out) {
+        ConnectedThread r;
+
+        synchronized (this) {
+            if (mState != STATE_CONNECTED) {
+                connectionLost();
+                return;
+            }
+            r = mConnectedThread;
+        }
+        r.write(out);
     }
 
     private synchronized void connectionLost() {
@@ -142,17 +156,21 @@ public class BluetoothService {
     private class ConnectedThread extends Thread {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
+        private final OutputStream mmOutStream;
 
         ConnectedThread(BluetoothSocket socket) {
             mmSocket = socket;
             InputStream tmpIn = null;
+            OutputStream tmpOut = null;
 
             try {
                 tmpIn = socket.getInputStream();
+                tmpOut = socket.getOutputStream();
             } catch (IOException e) {
-                Log.e(TAG, "Temp socket input stream not created", e);
+                Log.e(TAG, "Temp sockets streams not created", e);
             }
             mmInStream = tmpIn;
+            mmOutStream = tmpOut;
             mState = STATE_CONNECTED;
         }
 
@@ -171,6 +189,16 @@ public class BluetoothService {
                     connectionLost();
                     break;
                 }
+            }
+        }
+
+        void write(byte[] buffer) {
+            try {
+                mmOutStream.write(buffer);
+                mHandler.obtainMessage(Constants.MESSAGE_WRITE, -1, -1, buffer)
+                        .sendToTarget();
+            } catch (IOException e) {
+                Log.e(TAG, "Exception during write", e);
             }
         }
 
